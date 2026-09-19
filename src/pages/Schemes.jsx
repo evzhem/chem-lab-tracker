@@ -148,7 +148,7 @@ export default function Schemes() {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-violet-300/60">Все схемы открыты · без Pro и рекламы</p>
+      <p className="text-xs text-violet-300/60">Справочные материалы по химии: ряды, потенциалы, кислоты, ТБ</p>
 
       <div className="grid gap-2.5 sm:grid-cols-2">
         {MENU.map((m) => (
@@ -182,10 +182,10 @@ export default function Schemes() {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[15px] font-medium text-violet-50">
-            Настройки, установка, APK
+            Настройки приложения
           </span>
           <span className="mt-0.5 block text-[11px] text-violet-300/65">
-            Тема, скачать APK, очистить дневник
+            Тема, обновления, данные дневника
           </span>
         </span>
         <ChevronRight size={18} className="shrink-0 text-violet-300/50" />

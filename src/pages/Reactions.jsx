@@ -119,7 +119,7 @@ export default function Reactions() {
             </article>
           ))}
           <p className="text-center text-[11px] text-violet-300/40">
-            База офлайн · {REACTIONS.length} уравнений · всё бесплатно
+            База офлайн · {REACTIONS.length} уравнений
           </p>
         </div>
       )}

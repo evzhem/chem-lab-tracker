@@ -56,7 +56,7 @@ export default function Solubility() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-violet-300/65">г/100 мл H₂O · ~20 °C · всё бесплатно</p>
+        <p className="text-xs text-violet-300/65">г/100 мл H₂O · ~20 °C</p>
         <button
           type="button"
           onClick={() => setShowHelp(true)}
@@ -180,7 +180,7 @@ export default function Solubility() {
               Числа — приблизительная растворимость в граммах безводной соли на 100 мл воды при
               ~20 °C. Цвет ячейки показывает, растворяется ли вещество хорошо, плохо или почти не
               растворяется. Нажмите ячейку для подробностей. Масштаб меняется кнопками − и +, а ⤢
-              умещает таблицу по ширине экрана. Все данные доступны бесплатно.
+              умещает таблицу по ширине экрана.
             </p>
           </div>
         </div>

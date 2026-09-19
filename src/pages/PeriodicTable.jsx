@@ -115,7 +115,7 @@ export default function PeriodicTable() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-violet-300/70">{ELEMENTS.length} элементов · всё бесплатно</p>
+        <p className="text-xs text-violet-300/70">{ELEMENTS.length} элементов · справочник</p>
         <button
           type="button"
           onClick={() => setShowSearch((v) => !v)}
@@ -301,7 +301,7 @@ export default function PeriodicTable() {
               />
             </dl>
             <p className="mt-4 text-center text-[11px] text-violet-300/40">
-              Полная карточка элемента · без подписки
+              Полная карточка элемента
             </p>
           </div>
         </div>

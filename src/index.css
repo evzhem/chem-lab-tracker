@@ -12,7 +12,8 @@ html {
 
 body {
   margin: 0;
-  background: #0f0a1a;
+  background: #0f1219;
+  color: #ede9fe;
   font-family:
     ui-sans-serif,
     system-ui,
@@ -23,6 +24,7 @@ body {
     Arial,
     sans-serif;
   overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #root {
@@ -34,7 +36,6 @@ body {
   min-height: 100svh;
 }
 
-/* Comfortable tap targets & inputs on mobile */
 button,
 input,
 textarea {
@@ -43,18 +44,22 @@ textarea {
 
 input,
 textarea {
-  font-size: 16px; /* avoid iOS zoom on focus */
+  font-size: 16px;
 }
 
-/* Hide number spinners if any */
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Thin scrollbar for solubility table */
-.overflow-x-auto {
+.overflow-x-auto,
+.overflow-auto {
   scrollbar-width: thin;
-  scrollbar-color: rgb(139 92 246 / 0.4) transparent;
+  scrollbar-color: rgb(139 92 246 / 0.35) transparent;
+}
+
+/* serif for marketing titles */
+.font-serif {
+  font-family: Georgia, 'Times New Roman', serif;
 }

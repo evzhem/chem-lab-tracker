@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="112" fill="#1e1033"/>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#g)"/>
+  <defs>
+    <linearGradient id="g" x1="64" y1="64" x2="448" y2="448">
+      <stop stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+  </defs>
+  <!-- flask -->
+  <path d="M210 120h92c6 0 10 4 10 10v28c0 4-1 8-4 11l-48 56v98c0 28-22 50-50 50h0c-28 0-50-22-50-50v-98l-48-56c-3-3-4-7-4-11v-28c0-6 4-10 10-10h82z" stroke="#ede6ff" stroke-width="18" stroke-linejoin="round" fill="none"/>
+  <path d="M178 320h156c0 36-28 64-64 64h-28c-36 0-64-28-64-64z" fill="#47bfff" opacity=".9"/>
+  <circle cx="220" cy="350" r="10" fill="#ede6ff" opacity=".7"/>
+  <circle cx="260" cy="338" r="7" fill="#ede6ff" opacity=".5"/>
+  <circle cx="290" cy="358" r="8" fill="#ede6ff" opacity=".6"/>
+  <text x="256" y="210" text-anchor="middle" fill="#ede6ff" font-family="system-ui,sans-serif" font-size="48" font-weight="700">H₂O</text>
+</svg>

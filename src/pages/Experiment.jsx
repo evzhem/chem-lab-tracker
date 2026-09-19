@@ -45,7 +45,7 @@ export default function Experiment() {
     return (
       <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
         <p className="text-sm text-violet-200/70">Опыт не найден или был удалён.</p>
-        <Link to="/" className="mt-3 inline-block text-sm text-violet-300 underline">
+        <Link to="/journal" className="mt-3 inline-block text-sm text-violet-300 underline">
           Вернуться в дневник
         </Link>
       </div>
@@ -88,7 +88,7 @@ export default function Experiment() {
 
   function remove() {
     saveExperiments(loadExperiments().filter((e) => e.id !== id))
-    nav('/')
+    nav('/journal')
   }
 
   const done = exp.steps.filter((s) => s.done).length
@@ -97,7 +97,7 @@ export default function Experiment() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-1 text-sm text-violet-300">
+        <Link to="/journal" className="flex items-center gap-1 text-sm text-violet-300">
           <ChevronLeft size={16} /> Дневник
         </Link>
         <div className="flex items-center gap-3">

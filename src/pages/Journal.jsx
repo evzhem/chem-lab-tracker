@@ -69,7 +69,7 @@ export default function Journal() {
     persist([exp, ...list])
     setForm(emptyForm)
     setOpen(false)
-    nav(`/exp/${exp.id}`)
+    nav(`/exp/${exp.id}`) // HashRouter
   }
 
   const filtered = useMemo(() => {

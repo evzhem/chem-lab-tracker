@@ -1,4 +1,4 @@
-/* global __APP_APK_URL__, __APP_IS_NATIVE__ */
+/* global __APP_APK_URL__, __APP_IS_NATIVE__, __APP_UPDATE_URL__ */
 import { APP_VERSION } from './appInfo.js'
 
 export const APK_URL = typeof __APP_APK_URL__ === 'string' ? __APP_APK_URL__ : ''
@@ -11,8 +11,15 @@ export const IS_NATIVE =
 
 const SKIP_KEY = 'chemlab-update-later'
 
-/** version.json лежит рядом с приложением (работает и на сайте, и в APK) */
-const VERSION_PATH = `${import.meta.env.BASE_URL}version.json`
+/**
+ * Где брать информацию о новой версии.
+ * - на сайте: version.json лежит рядом с приложением и обновляется при выкладке;
+ * - в APK: файл внутри сборки «заморожен», поэтому версия запрашивается
+ *   у опубликованного приложения по адресу __APP_UPDATE_URL__.
+ */
+const REMOTE_URL = typeof __APP_UPDATE_URL__ === 'string' ? __APP_UPDATE_URL__ : ''
+const VERSION_PATH =
+  IS_NATIVE && REMOTE_URL ? REMOTE_URL : `${import.meta.env.BASE_URL}version.json`
 
 export const UPDATE_STATE = {
   idle: 'idle',

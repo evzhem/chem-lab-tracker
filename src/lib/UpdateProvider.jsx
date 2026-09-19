@@ -8,13 +8,14 @@ import { applyWebUpdate } from './pwa.js'
 const RECHECK_AFTER_MS = 30 * 60 * 1000
 
 /**
- * Тихая проверка обновлений при входе в приложение.
+ * Проверка обновлений при запуске приложения.
  *
  * Пользователю ничего не показывается, пока обновления нет.
- * Если версия на сервере новее — открывается окно с описанием
- * обновления и кнопками «Позже» / «Обновить».
+ * Если версия новее — открывается окно с описанием обновления и кнопками
+ * «Позже» / «Обновить», а на главном экране появляется карточка обновления.
  */
 export function UpdateProvider({ children }) {
+  const [result, setResult] = useState(null)
   const [info, setInfo] = useState(null)
   const [state, setState] = useState(UPDATE_STATE.idle)
   const [applying, setApplying] = useState(false)
@@ -28,12 +29,12 @@ export function UpdateProvider({ children }) {
     lastCheckRef.current = Date.now()
     setState(UPDATE_STATE.checking)
     try {
-      const result = await checkForUpdate()
+      const found = await checkForUpdate()
       setState(UPDATE_STATE.ready)
       setError('')
-      const shouldShow = result.updateAvailable && (!result.postponed || !silent)
-      setInfo(shouldShow ? { ...result, isNative: IS_NATIVE } : null)
-      return result
+      setResult(found)
+      setInfo(found.updateAvailable && !found.postponed ? { ...found, isNative: IS_NATIVE } : null)
+      return found
     } catch {
       // нет сети или файла версии — приложение работает как обычно
       setState(UPDATE_STATE.error)
@@ -44,8 +45,8 @@ export function UpdateProvider({ children }) {
     }
   }, [])
 
-  // проверка при запуске приложения — с небольшой задержкой, чтобы
-  // не мешать первому отображению интерфейса
+  // проверка при запуске приложения — с небольшой задержкой,
+  // чтобы не мешать первому отображению интерфейса
   useEffect(() => {
     const timer = setTimeout(() => {
       runCheck({ silent: true })
@@ -68,27 +69,37 @@ export function UpdateProvider({ children }) {
     }
   }, [runCheck])
 
+  /** «Позже» — окно закрывается, версия запоминается */
   const dismiss = useCallback(() => {
     setInfo((current) => {
       if (current?.version) postponeVersion(current.version)
       return null
     })
+    setResult((current) => (current ? { ...current, postponed: true } : current))
+  }, [])
+
+  /** Показать окно обновления (например, с карточки на главной) */
+  const open = useCallback(() => {
+    setResult((current) => {
+      if (current?.updateAvailable) setInfo({ ...current, isNative: IS_NATIVE })
+      return current
+    })
   }, [])
 
   const applyUpdate = useCallback(async () => {
-    const current = info
-    if (!current) return false
+    const current = info && info.updateAvailable ? info : result
+    if (!current?.updateAvailable) return false
     setApplying(true)
     setError('')
-    // запоминаем, что пользователь уже обновился, чтобы при запуске
-    // не показывать то же окно повторно
+    // помечаем версию, чтобы при запуске не показывать то же окно повторно
     postponeVersion(current.version)
 
-    if (current.isNative) {
-      const ok = openApk(current.apkUrl)
+    if (IS_NATIVE) {
+      const ok = openApk(current.apkUrl || '')
       setApplying(false)
       if (!ok) {
         setError('Ссылка на новую версию недоступна. Попробуйте позже.')
+        setInfo({ ...current, isNative: true })
         return false
       }
       setInfo(null)
@@ -98,21 +109,25 @@ export function UpdateProvider({ children }) {
     // веб-версия: активируем новый service worker и перезагружаем страницу
     applyWebUpdate()
     return true
-  }, [info])
+  }, [info, result])
 
   const value = useMemo(
     () => ({
       info,
+      result,
       state,
       error,
       applying,
       version: APP_VERSION,
       build: APP_BUILD,
+      hasUpdate: Boolean(result?.updateAvailable),
+      postponed: Boolean(result?.postponed),
       check: runCheck,
       dismiss,
+      open,
       applyUpdate,
     }),
-    [info, state, error, applying, runCheck, dismiss, applyUpdate],
+    [info, result, state, error, applying, runCheck, dismiss, open, applyUpdate],
   )
 
   return (

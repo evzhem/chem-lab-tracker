@@ -15,13 +15,21 @@ const APP_APK_URL =
   process.env.APP_APK_URL ||
   'https://github.com/evzhem/chem-lab-tracker/releases/download/apk-latest/ChemLabTracker.apk'
 
+// адрес опубликованного приложения: APK запрашивает у него информацию о новых версиях
+const APP_UPDATE_URL =
+  process.env.APP_UPDATE_URL ||
+  'https://evzhem.github.io/chem-lab-tracker/version.json'
+
 /**
  * Публикует version.json рядом с приложением: по нему приложение при запуске
  * проверяет, нет ли новой версии, и показывает окно обновления.
  */
-function versionPayload() {
+function versionPayload({ dev = false } = {}) {
+  // в режиме разработки версию с сервера можно подменить, чтобы проверить
+  // сценарий обновления: APP_DEV_REMOTE_VERSION=1.3.0 npm run dev
+  const fake = dev ? process.env.APP_DEV_REMOTE_VERSION || '' : ''
   return {
-    version: pkg.version,
+    version: fake || pkg.version,
     build: APP_BUILD,
     releasedAt: new Date().toISOString(),
     title: LATEST_RELEASE?.title || '',
@@ -31,7 +39,7 @@ function versionPayload() {
 }
 
 function versionFile() {
-  const body = () => `${JSON.stringify(versionPayload(), null, 2)}\n`
+  const body = () => `${JSON.stringify(versionPayload({ dev: true }), null, 2)}\n`
   return {
     name: 'chemlab-version-file',
     // в режиме разработки файл отдаётся тем же адресом, что и в собранном виде
@@ -57,6 +65,8 @@ export default defineConfig({
     __APP_BUILD__: JSON.stringify(APP_BUILD),
     __APP_UPDATED_AT__: JSON.stringify(new Date().toISOString()),
     __APP_APK_URL__: JSON.stringify(APP_APK_URL),
+    // в веб-версии version.json берётся со своего адреса, в APK — с сайта
+    __APP_UPDATE_URL__: JSON.stringify(isCapacitor ? APP_UPDATE_URL : ''),
     __APP_IS_NATIVE__: JSON.stringify(isCapacitor),
   },
   plugins: [

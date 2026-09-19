@@ -1,4 +1,17 @@
-import { ChevronRight } from 'lucide-react'
+import {
+  Activity,
+  ArrowLeft,
+  Atom,
+  ChevronRight,
+  FlaskConical,
+  Gauge,
+  Settings,
+  ShieldCheck,
+  Sigma,
+  TestTube2,
+  Thermometer,
+  Zap,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ACIDS, ACTIVITY } from '../data/chemistry'
@@ -11,29 +24,116 @@ import {
 import Safety from './Safety'
 
 const MENU = [
-  { id: 'en', title: 'Ряд электроотрицательности элементов' },
-  { id: 'org', title: 'Молекулярные массы органических веществ' },
-  { id: 'act', title: 'Электрохимический ряд активности металлов' },
-  { id: 'acidstr', title: 'Ряд силы кислот' },
-  { id: 'redox', title: 'Стандартный электродный потенциал' },
-  { id: 'redox25', title: 'Стандартный редокс-потенциал при 25 °C' },
-  { id: 'acids', title: 'Кислоты и кислотные остатки' },
-  { id: 'safety', title: 'Техника безопасности' },
+  {
+    id: 'en',
+    title: 'Ряд электроотрицательности',
+    subtitle: 'Шкала Полинга — от Cs до F',
+    count: ELECTRONEGATIVITY.length,
+    icon: Zap,
+    badge: 'from-amber-400 to-orange-600',
+    glow: 'from-amber-500/20',
+  },
+  {
+    id: 'org',
+    title: 'Молекулярные массы органических веществ',
+    subtitle: 'Готовые значения M, г/моль',
+    count: ORGANIC_MASSES.length,
+    icon: Atom,
+    badge: 'from-emerald-400 to-teal-600',
+    glow: 'from-emerald-500/20',
+  },
+  {
+    id: 'act',
+    title: 'Ряд активности металлов',
+    subtitle: 'Электрохимический ряд напряжений',
+    count: ACTIVITY.length,
+    icon: Activity,
+    badge: 'from-sky-400 to-blue-600',
+    glow: 'from-sky-500/20',
+  },
+  {
+    id: 'acidstr',
+    title: 'Ряд силы кислот',
+    subtitle: 'От очень сильных к очень слабым',
+    count: ACID_STRENGTH.length,
+    icon: Gauge,
+    badge: 'from-rose-400 to-pink-600',
+    glow: 'from-rose-500/20',
+  },
+  {
+    id: 'redox',
+    title: 'Стандартные электродные потенциалы',
+    subtitle: 'E°, В — таблица восстановления',
+    count: REDOX_POTENTIALS.length,
+    icon: Sigma,
+    badge: 'from-violet-400 to-purple-600',
+    glow: 'from-violet-500/20',
+  },
+  {
+    id: 'redox25',
+    title: 'Редокс-потенциалы при 25 °C',
+    subtitle: 'Тот же ряд с подсказками',
+    count: REDOX_POTENTIALS.length,
+    icon: Thermometer,
+    badge: 'from-fuchsia-400 to-purple-600',
+    glow: 'from-fuchsia-500/20',
+  },
+  {
+    id: 'acids',
+    title: 'Кислоты и кислотные остатки',
+    subtitle: 'Названия и формулы остатков',
+    count: ACIDS.length,
+    icon: TestTube2,
+    badge: 'from-cyan-400 to-blue-600',
+    glow: 'from-cyan-500/20',
+  },
+  {
+    id: 'safety',
+    title: 'Техника безопасности',
+    subtitle: 'Правила работы в лаборатории',
+    count: 8,
+    icon: ShieldCheck,
+    badge: 'from-lime-400 to-green-600',
+    glow: 'from-lime-500/20',
+  },
 ]
 
 export default function Schemes() {
   const [page, setPage] = useState(null)
   const nav = useNavigate()
+  const current = MENU.find((m) => m.id === page)
 
   if (page) {
     return (
-      <div className="space-y-3">
-        <button type="button" onClick={() => setPage(null)} className="text-sm text-violet-300">
-          ← К схемам
+      <div className="space-y-4">
+        <button
+          type="button"
+          onClick={() => setPage(null)}
+          className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-violet-200 active:bg-white/10"
+        >
+          <ArrowLeft size={14} /> К схемам
         </button>
-        <h2 className="text-lg font-medium text-violet-50">
-          {MENU.find((m) => m.id === page)?.title}
-        </h2>
+
+        {current && (
+          <div
+            className={`relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br ${current.glow} via-transparent to-transparent p-4`}
+          >
+            <div className="flex items-center gap-3">
+              <span
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${current.badge} shadow-lg`}
+              >
+                <current.icon size={22} className="text-white" />
+              </span>
+              <div className="min-w-0">
+                <h2 className="text-[17px] font-medium leading-snug text-violet-50">
+                  {current.title}
+                </h2>
+                <p className="text-[11px] text-violet-200/70">{current.subtitle}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {page === 'en' && <EnList />}
         {page === 'org' && <OrgList />}
         {page === 'act' && <ActList />}
@@ -47,39 +147,91 @@ export default function Schemes() {
   }
 
   return (
-    <div className="space-y-1">
-      <p className="mb-3 text-xs text-violet-300/60">Все схемы открыты · без Pro и рекламы</p>
-      <ul className="divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/[0.03]">
+    <div className="space-y-3">
+      <p className="text-xs text-violet-300/60">Все схемы открыты · без Pro и рекламы</p>
+
+      <div className="grid gap-2.5 sm:grid-cols-2">
         {MENU.map((m) => (
-          <li key={m.id}>
-            <button
-              type="button"
-              onClick={() => setPage(m.id)}
-              className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left text-[15px] text-violet-50 active:bg-white/5"
-            >
-              <span>{m.title}</span>
-              <ChevronRight size={18} className="shrink-0 text-violet-400/50" />
-            </button>
-          </li>
+          <Card key={m.id} item={m} onClick={() => setPage(m.id)} />
         ))}
-      </ul>
+      </div>
+
+      <div className="pt-1">
+        <Card
+          item={{
+            id: 'journal',
+            title: 'Дневник лабораторных опытов',
+            subtitle: 'Цели, шаги, наблюдения — офлайн',
+            count: null,
+            icon: FlaskConical,
+            badge: 'from-violet-500 to-indigo-600',
+            glow: 'from-violet-500/25',
+            accent: true,
+          }}
+          onClick={() => nav('/journal')}
+        />
+      </div>
+
       <button
         type="button"
-        onClick={() => nav('/journal')}
-        className="mt-4 flex w-full items-center justify-between rounded-2xl border border-violet-400/30 bg-violet-500/15 px-4 py-4 text-left text-sm text-violet-100"
+        onClick={() => nav('/settings')}
+        className="flex w-full items-center gap-3 rounded-3xl border border-white/10 bg-white/5 p-4 text-left active:bg-white/10"
       >
-        <span>Дневник лабораторных опытов</span>
-        <ChevronRight size={18} className="text-violet-300/60" />
-      </button>
-      <button
-        type="button"
-        onClick={() => nav('/install')}
-        className="mt-2 flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left text-sm text-violet-100"
-      >
-        <span>Установить приложение / скачать APK</span>
-        <ChevronRight size={18} className="text-violet-300/60" />
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-500/60 to-slate-700 text-white">
+          <Settings size={20} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[15px] font-medium text-violet-50">
+            Настройки, установка, APK
+          </span>
+          <span className="mt-0.5 block text-[11px] text-violet-300/65">
+            Тема, скачать APK, очистить дневник
+          </span>
+        </span>
+        <ChevronRight size={18} className="shrink-0 text-violet-300/50" />
       </button>
     </div>
+  )
+}
+
+function Card({ item, onClick }) {
+  const { title, subtitle, count, icon: Icon, badge, glow, accent } = item
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group relative flex w-full flex-col overflow-hidden rounded-3xl border p-4 text-left transition-colors active:scale-[0.99] ${
+        accent
+          ? 'border-violet-400/30 bg-gradient-to-br from-violet-500/25 via-violet-500/5 to-transparent'
+          : `border-white/10 bg-white/[0.04]`
+      }`}
+    >
+      <span
+        className={`pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-gradient-to-br ${glow} to-transparent blur-2xl`}
+      />
+      <span className="relative flex items-center gap-3">
+        <span
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${badge} shadow-lg shadow-black/30`}
+        >
+          <Icon size={21} className="text-white" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[15px] font-medium leading-snug text-violet-50">{title}</span>
+          <span className="mt-0.5 block text-[11px] leading-snug text-violet-300/70">
+            {subtitle}
+          </span>
+        </span>
+        <ChevronRight
+          size={18}
+          className="shrink-0 text-violet-300/50 transition-transform group-active:translate-x-0.5"
+        />
+      </span>
+      {count != null && (
+        <span className="relative mt-3 inline-flex w-fit rounded-full bg-black/25 px-2.5 py-0.5 text-[10px] text-violet-200/80">
+          {count} поз.
+        </span>
+      )}
+    </button>
   )
 }
 
@@ -88,14 +240,14 @@ function EnList() {
   return (
     <ul className="space-y-2">
       {ELECTRONEGATIVITY.map((item) => (
-        <li key={item.el} className="rounded-xl bg-white/5 px-3 py-2">
+        <li key={item.el} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
           <div className="mb-1 flex justify-between text-sm">
             <span className="font-mono font-semibold">{item.el}</span>
-            <span className="text-violet-200/80">{item.value}</span>
+            <span className="tabular-nums text-violet-200/80">{item.value}</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-black/40">
             <div
-              className="h-full rounded-full bg-violet-400"
+              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
               style={{ width: `${(item.value / max) * 100}%` }}
             />
           </div>
@@ -183,7 +335,7 @@ function RedoxList({ title }) {
         {REDOX_POTENTIALS.map((r) => (
           <li
             key={r.half}
-            className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2.5 text-sm"
+            className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm"
           >
             <span className="font-mono text-violet-100">{r.half}</span>
             <span

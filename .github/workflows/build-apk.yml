@@ -1,5 +1,9 @@
 name: Build Android APK
 
+# Публикует APK в GitHub Releases при каждом push в main.
+# - версионированный релиз vX.Y.Z-N (история обновлений)
+# - тег apk-latest (постоянная ссылка на скачивание)
+
 on:
   workflow_dispatch:
   push:
@@ -29,58 +33,140 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Install Android command-line tools
+        run: |
+          set -euo pipefail
+          ANDROID_HOME="${{ github.workspace }}/android-sdk"
+          mkdir -p "$ANDROID_HOME/cmdline-tools"
+          cd /tmp
+          curl -fsSL -o cmdtools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q cmdtools.zip
+          rm -rf "$ANDROID_HOME/cmdline-tools/latest"
+          mv cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_HOME" --licenses >/tmp/sdk-lic.txt || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_HOME" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+          ls "$ANDROID_HOME"
 
-      - name: Install dependencies
+      - name: Install npm dependencies
         run: npm ci
 
-      - name: Build web (Capacitor base)
+      - name: Read version
+        id: ver
+        run: |
+          PKG_VER=$(node -p "require('./package.json').version")
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF_NAME}"
+            NAME="ChemLab Tracker ${GITHUB_REF_NAME}"
+          else
+            TAG="v${PKG_VER}.${{ github.run_number }}"
+            NAME="ChemLab Tracker v${PKG_VER} (build ${{ github.run_number }})"
+          fi
+          echo "pkg=$PKG_VER" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "Release tag=$TAG name=$NAME"
+
+      - name: Build web for Capacitor (base ./)
         run: npm run build:apk-web
         env:
           CAPACITOR: '1'
 
-      - name: Add Android platform if missing
+      - name: Add Android platform + sync
         run: |
           if [ ! -d android ]; then
             npx cap add android
           fi
           npx cap sync android
+          # local.properties for Gradle
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+          cat android/local.properties
 
-      - name: Make gradlew executable
-        run: chmod +x android/gradlew
+      - name: Bump Android versionCode / versionName
+        run: |
+          VC="${{ github.run_number }}"
+          VN="${{ steps.ver.outputs.pkg }}.${{ github.run_number }}"
+          for f in android/app/build.gradle android/app/build.gradle.kts; do
+            [ -f "$f" ] || continue
+            if [[ "$f" == *.kts ]]; then
+              sed -i -E "s/versionCode\s*=\s*[0-9]+/versionCode = ${VC}/" "$f" || true
+              sed -i -E "s/versionName\s*=\s*\"[^\"]*\"/versionName = \"${VN}\"/" "$f" || true
+            else
+              sed -i -E "s/versionCode\s+[0-9]+/versionCode ${VC}/" "$f" || true
+              sed -i -E "s/versionName\s+\"[^\"]*\"/versionName \"${VN}\"/" "$f" || true
+            fi
+            echo "---- $f ----"; grep -E 'version(Code|Name)' "$f" || true
+          done
 
       - name: Build debug APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Rename APK
+      - name: Collect APK
+        id: apk
         run: |
           mkdir -p artifacts
-          cp android/app/build/outputs/apk/debug/app-debug.apk artifacts/ChemLabTracker.apk
+          SRC=$(find android/app/build/outputs/apk -name '*.apk' | head -1)
+          test -n "$SRC"
+          echo "source=$SRC"
+          cp "$SRC" artifacts/ChemLabTracker.apk
+          cp "$SRC" "artifacts/ChemLabTracker-${{ steps.ver.outputs.tag }}.apk"
           ls -lh artifacts/
+          echo "path=artifacts/ChemLabTracker.apk" >> "$GITHUB_OUTPUT"
 
-      - name: Upload APK artifact
+      - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: ChemLabTracker-apk
-          path: artifacts/ChemLabTracker.apk
+          path: artifacts/*.apk
           retention-days: 90
 
-      - name: Publish / update APK release
+      - name: Create versioned GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'apk-latest' }}
-          name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'Latest APK (Android)' }}
-          files: artifacts/ChemLabTracker.apk
-          generate_release_notes: ${{ startsWith(github.ref, 'refs/tags/') }}
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.name }}
+          files: |
+            artifacts/ChemLabTracker.apk
+            artifacts/ChemLabTracker-${{ steps.ver.outputs.tag }}.apk
+          fail_on_unmatched_files: true
+          generate_release_notes: true
           body: |
             ## ChemLab Tracker для Android
 
-            1. Скачайте **ChemLabTracker.apk** ниже
-            2. На телефоне: Настройки → разрешить установку из неизвестных источников
-            3. Откройте файл и установите
+            **Версия:** `${{ steps.ver.outputs.tag }}`
 
-            **Всё бесплатно** — таблица Менделеева, растворимость, реакции, молярная масса, дневник.
+            ### Установка
+            1. Скачайте **ChemLabTracker.apk** внизу страницы
+            2. Телефон → разрешить установку из неизвестных источников
+            3. Откройте APK
 
-            Сайт / PWA: https://evzhem.github.io/chem-lab-tracker/#/install
+            Обновление: ставьте новый APK поверх старого (тот же package `app.chemlab.tracker`).
+
+            - Всегда свежий: https://github.com/evzhem/chem-lab-tracker/releases/tag/apk-latest
+            - Сайт: https://evzhem.github.io/chem-lab-tracker/#/install
+
+      - name: Update permanent apk-latest release
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: Latest APK (Android) — всегда свежий
+          files: artifacts/ChemLabTracker.apk
+          fail_on_unmatched_files: true
+          body: |
+            ## Всегда последняя сборка
+
+            Скачайте **ChemLabTracker.apk** ниже.
+
+            История версий: https://github.com/evzhem/chem-lab-tracker/releases  
+            Сайт: https://evzhem.github.io/chem-lab-tracker/#/install

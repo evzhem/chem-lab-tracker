@@ -6,7 +6,9 @@
 
 **Установка на телефон:** https://evzhem.github.io/chem-lab-tracker/#/install
 
-**APK (Android):** https://github.com/evzhem/chem-lab-tracker/releases/latest
+**APK (Android, всегда свежий):** https://github.com/evzhem/chem-lab-tracker/releases/download/apk-latest/ChemLabTracker.apk  
+
+**Все версии APK (Releases):** https://github.com/evzhem/chem-lab-tracker/releases  
 
 ## Возможности (всё открыто)
 
@@ -29,13 +31,23 @@
 
 ### 2. APK (Android)
 
-1. Откройте [Releases](https://github.com/evzhem/chem-lab-tracker/releases/latest).
-2. Скачайте `ChemLabTracker.apk`.
-3. Разрешите установку из неизвестных источников и установите.
+1. Откройте [Releases](https://github.com/evzhem/chem-lab-tracker/releases) — справа на странице репозитория блок **Releases**.
+2. Скачайте `ChemLabTracker.apk` у нужной версии (или с [apk-latest](https://github.com/evzhem/chem-lab-tracker/releases/tag/apk-latest)).
+3. На телефоне: разрешите установку из неизвестных источников → откройте файл.
 
-APK собирается GitHub Actions (workflow **Build Android APK**).  
-Запуск вручную: Actions → Build Android APK → Run workflow.  
-Или тег: `git tag v1.1.0 && git push origin v1.1.0`.
+**Как появляются обновления APK**
+
+| Событие | Что происходит |
+|--------|----------------|
+| Push / merge в `main` | Actions → **Build Android APK** → новый релиз `v1.1.0-N` + обновление `apk-latest` |
+| Ручной запуск | Actions → Build Android APK → **Run workflow** |
+| Тег `v1.2.0` | Релиз с именем тега |
+
+Прямая ссылка на последний APK (можно в README / на сайте):
+
+```
+https://github.com/evzhem/chem-lab-tracker/releases/download/apk-latest/ChemLabTracker.apk
+```
 
 ## Стек
 

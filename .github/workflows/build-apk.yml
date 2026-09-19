@@ -78,6 +78,7 @@ jobs:
         run: npm run build:apk-web
         env:
           CAPACITOR: '1'
+          APP_BUILD: ${{ github.run_number }}
 
       - name: Add Android platform + sync
         run: |
@@ -153,10 +154,11 @@ jobs:
             Обновление: ставьте новый APK поверх старого (тот же package `app.chemlab.tracker`).
 
             - Всегда свежий: https://github.com/evzhem/chem-lab-tracker/releases/tag/apk-latest
-            - Сайт: https://evzhem.github.io/chem-lab-tracker/#/install
+            - Сайт: https://evzhem.github.io/chem-lab-tracker/#/settings
 
       - name: Update permanent apk-latest release
-        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        # постоянная ссылка обновляется из main, при ручном запуске и при push тега
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-latest
@@ -169,4 +171,4 @@ jobs:
             Скачайте **ChemLabTracker.apk** ниже.
 
             История версий: https://github.com/evzhem/chem-lab-tracker/releases  
-            Сайт: https://evzhem.github.io/chem-lab-tracker/#/install
+            Сайт: https://evzhem.github.io/chem-lab-tracker/#/settings

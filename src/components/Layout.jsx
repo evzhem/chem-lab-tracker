@@ -1,11 +1,11 @@
 import {
   Beaker,
   Calculator,
-  Download,
   Droplets,
   FlaskConical,
   Grid3x3,
   List,
+  Settings,
 } from 'lucide-react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
@@ -24,7 +24,7 @@ const titles = {
   '/calc': 'Калькулятор молярных масс',
   '/schemes': 'Схемы',
   '/journal': 'Дневник опытов',
-  '/install': 'Установить',
+  '/settings': 'Настройки',
   '/safety': 'Безопасность',
 }
 
@@ -33,14 +33,12 @@ export default function Layout() {
   const nav = useNavigate()
   const isExperiment = pathname.startsWith('/exp/')
   const isJournal = pathname.startsWith('/journal') || isExperiment
-  const subtitle = isExperiment
-    ? 'Опыт'
-    : titles[pathname] || 'ChemLab Tracker'
+  const subtitle = isExperiment ? 'Опыт' : titles[pathname] || 'ChemLab Tracker'
 
   return (
-    <div className="min-h-svh bg-[#0f1219] text-violet-50">
+    <div className="app-bg min-h-svh text-violet-50">
       <div className="mx-auto flex min-h-svh max-w-lg flex-col">
-        <header className="flex items-start justify-between gap-2 px-4 pb-2 pt-[max(0.85rem,env(safe-area-inset-top))]">
+        <header className="app-bar sticky top-0 z-20 flex items-start justify-between gap-2 border-b border-white/5 px-4 pb-2 pt-[max(0.7rem,env(safe-area-inset-top))] backdrop-blur-xl">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 text-[10px] font-bold shadow">
@@ -56,7 +54,7 @@ export default function Layout() {
               <button
                 type="button"
                 onClick={() => nav('/journal')}
-                className="rounded-full bg-white/5 p-2 text-violet-300"
+                className="rounded-full bg-white/5 p-2 text-violet-300 active:bg-white/10"
                 title="Дневник"
                 aria-label="Дневник"
               >
@@ -64,19 +62,18 @@ export default function Layout() {
               </button>
             )}
             <NavLink
-              to="/install"
+              to="/settings"
               className={({ isActive }) =>
-                `rounded-full px-2.5 py-1.5 text-xs font-medium ${
+                `rounded-full p-2 transition-colors ${
                   isActive
                     ? 'bg-violet-500 text-white'
-                    : 'bg-violet-600 text-white shadow shadow-violet-900/40'
+                    : 'bg-white/5 text-violet-300 active:bg-white/10'
                 }`
               }
+              title="Настройки"
+              aria-label="Настройки"
             >
-              <span className="flex items-center gap-1">
-                <Download size={14} />
-                App
-              </span>
+              <Settings size={18} />
             </NavLink>
           </div>
         </header>
@@ -86,7 +83,7 @@ export default function Layout() {
         </main>
 
         <nav
-          className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-[#0c0f16]/92 backdrop-blur-xl"
+          className="app-bar fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 backdrop-blur-xl"
           style={{ paddingBottom: 'max(0.35rem, env(safe-area-inset-bottom))' }}
         >
           <div className="mx-auto grid max-w-lg grid-cols-5 px-1 pt-1.5">

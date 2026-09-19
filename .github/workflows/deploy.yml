@@ -24,7 +24,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - name: Build web app
+        run: npm run build
+        env:
+          APP_BUILD: ${{ github.run_number }}
+          APP_APK_URL: https://github.com/evzhem/chem-lab-tracker/releases/download/apk-latest/ChemLabTracker.apk
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

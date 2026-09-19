@@ -6,9 +6,23 @@ body,
   min-height: 100%;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   background: #0f0a1a;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  overscroll-behavior-y: none;
 }
 
 #root {
@@ -18,4 +32,29 @@ body {
   text-align: initial;
   border: 0;
   min-height: 100svh;
+}
+
+/* Comfortable tap targets & inputs on mobile */
+button,
+input,
+textarea {
+  touch-action: manipulation;
+}
+
+input,
+textarea {
+  font-size: 16px; /* avoid iOS zoom on focus */
+}
+
+/* Hide number spinners if any */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Thin scrollbar for solubility table */
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(139 92 246 / 0.4) transparent;
 }

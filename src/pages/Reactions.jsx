@@ -1,5 +1,6 @@
 import { GraduationCap, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import UpdateNotice from '../components/UpdateNotice'
 import { REACTIONS, searchReactions } from '../data/reactions'
 
 const EXAMPLES = [
@@ -26,6 +27,9 @@ export default function Reactions() {
 
   return (
     <div className="space-y-5">
+      {/* карточка обновления: появляется, только если вышла новая версия */}
+      <UpdateNotice />
+
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -119,7 +123,7 @@ export default function Reactions() {
             </article>
           ))}
           <p className="text-center text-[11px] text-violet-300/40">
-            База офлайн · {REACTIONS.length} уравнений · всё бесплатно
+            База офлайн · {REACTIONS.length} уравнений
           </p>
         </div>
       )}
